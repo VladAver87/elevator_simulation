@@ -1,4 +1,4 @@
-package com.vladaver87.elevator_simulation.model;
+package com.vladaver87.server.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

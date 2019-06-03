@@ -1,8 +1,4 @@
-package com.vladaver87.elevator_simulation.logic;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+package com.vladaver87.server.logic;
 
 import javax.annotation.PostConstruct;
 
@@ -11,9 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.vladaver87.elevator_simulation.model.Elevator;
-import com.vladaver87.elevator_simulation.model.Person;
-
+import com.vladaver87.server.model.Elevator;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +32,11 @@ public class ElevatorLogic {
 	public void moveElevatorToClientFloor(int floor) {
 		
 		
+	}
+	
+	public int getCurrentFloor() {
 		
+		return elevator.getCurrentFloor();
 	}
 
 }

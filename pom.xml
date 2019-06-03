@@ -10,11 +10,13 @@
 	<groupId>com.vladaver87</groupId>
 	<artifactId>elevator_simulation</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>elevator_simulation</name>
 	<packaging>pom</packaging>
+	<name>elevator_simulation</name>
 	<modules>
+		<module>server</module>
 		<module>client</module>
-  </modules>
+	</modules>
+
 	<description>Demo project for Spring Boot</description>
 
 	<properties>

@@ -1,4 +1,4 @@
-package com.vladaver87.elevator_simulation.model;
+package com.vladaver87.server.model;
 
 public enum State {
 	STOP,

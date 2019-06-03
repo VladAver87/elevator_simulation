@@ -1,4 +1,4 @@
-package com.vladaver87.elevator_simulation.model;
+package com.vladaver87.server.model;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

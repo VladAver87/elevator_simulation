@@ -1,4 +1,4 @@
-package com.vladaver87.elevator_simulation;
+package com.vladaver87.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
