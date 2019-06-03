@@ -42,7 +42,7 @@ public class ElevatorLogic {
 		LOGGER.info("Person at the {} floor", arrivalFloor);
 	}
 	
-	public void moveUp() {
+	public void moveToClientFloor(int floor) {
 		
 		
 	}
