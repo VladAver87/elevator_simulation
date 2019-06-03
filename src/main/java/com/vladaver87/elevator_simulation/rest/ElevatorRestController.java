@@ -17,7 +17,7 @@ public class ElevatorRestController {
 	
 	@PutMapping("/client/{floorNo}")
 	public void moveElevatorToClientFloor(@PathVariable int floorNo) {
-		elevatorLogic.moveToClientFloor(floorNo);
+		elevatorLogic.moveElevatorToClientFloor(floorNo);
 	}
 
 }

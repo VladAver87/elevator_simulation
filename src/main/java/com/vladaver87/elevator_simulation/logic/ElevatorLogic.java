@@ -29,20 +29,14 @@ public class ElevatorLogic {
 	
 	@Autowired
 	private Elevator elevator;
-	private List<Person> persons = new ArrayList<>();
 	
 	@PostConstruct
 	public void setPersonProppperties() {
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("on what floor are you on?");
-		int arrivalFloor = scanner.nextInt();
-		Person person = new Person(arrivalFloor);
-		persons.add(person);
-		scanner.close();
-		LOGGER.info("Person at the {} floor", arrivalFloor);
+
 	}
 	
-	public void moveToClientFloor(int floor) {
+	public void moveElevatorToClientFloor(int floor) {
+		
 		
 		
 	}
