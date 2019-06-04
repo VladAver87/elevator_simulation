@@ -4,5 +4,7 @@ public enum State {
 	STOP,
 	MOVE_UP,
 	MOVE_DOWN,
+	STOPPING,
+	STARTING;
 
 }
