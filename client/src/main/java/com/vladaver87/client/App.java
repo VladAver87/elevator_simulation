@@ -14,24 +14,29 @@ public class App
         while(true) {
         System.out.println("Commands: ");
         System.out.println("To call elevator type: call");
+        System.out.println("To set destination floor type: set");
         System.out.println("To get elevator state type: state");
+        System.out.println("To exit type: exit");
         Scanner sc = new Scanner(System.in);
         String command = sc.nextLine();
         if (command.equals("call")) {
         	System.out.println("What floor are you on?");
-        	int floor = sc.nextInt();
+        	Integer floor = sc.nextInt();
         	clientLogic.callElevator(floor);
-        	while (floor != Integer.valueOf(clientLogic.checkElevatorFloor())) {
-        		System.out.println("elevator is moving....");
-        	}
+        	System.out.println("elevator is moving....");
+        }else if (command.equals("set")) {
         	System.out.println("What is destination floor?");
-        	floor = sc.nextInt();
-        	clientLogic.goToDestinationFloor(floor);
-        	
+        	Integer floor = sc.nextInt();
+        	clientLogic.goToDestinationFloor(floor);      	
         }
-        if (command.equals("state")) {
+        else if (command.equals("state")) {
         	System.out.println("Elevator state is: " +clientLogic.checkElevatorState());
-        } else {
+        } 
+        else if (command.equals("exit")) {
+        	sc.close();
+        	System.exit(0);
+        }
+        else {
         	System.out.println("unknown command");
         }
       }
