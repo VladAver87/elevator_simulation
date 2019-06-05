@@ -14,8 +14,10 @@ import lombok.Setter;
 public class ClientLogic implements Observable {
 
 	private String url;
+	private int arrivalFloor;
 
 	public void callElevator(int floor) {
+		arrivalFloor = floor;
 		if (floor < 1 || floor > 7) {
 			try {
 				throw new InvalidFloorNumberExcerpion();
@@ -36,7 +38,7 @@ public class ClientLogic implements Observable {
 				System.out.println("Invalid floor number");
 			}
 		}
-		if (Integer.valueOf(checkElevatorFloor()) != floor) {
+		if (Integer.valueOf(checkElevatorFloor()) != arrivalFloor) {
 			System.out.println("Wait i fiew seconds, elevator is on the " + Integer.valueOf(checkElevatorFloor()) + " " + "floor");
 		} else {
 			notifyOnserver(floor);
