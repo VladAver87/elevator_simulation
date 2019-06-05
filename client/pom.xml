@@ -24,10 +24,5 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-		      <groupId>com.vladaver87</groupId>
-		      <artifactId>elevator_simulation</artifactId>
-		      <version>0.0.1-SNAPSHOT</version>
-    	</dependency>
 	</dependencies>
 </project>

@@ -4,7 +4,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.vladaver87.client.exception.InvalidFloorNumberExcerpion;
-import com.vladaver87.util.Comand;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -62,11 +61,10 @@ public class ClientLogic implements Observable {
 
 	@Override
 	public void notifyOnserver(int floor) {
-		Client client = new Client();
-		Comand comand = new Comand(floor);
-		WebResource resource = client.resource(url + "api/client/comand");
-		ClientResponse response = resource.type("application/json").put(ClientResponse.class, comand);
-		response.close();
-	}
+		String param = String.valueOf(floor);
+ 		Client client = new Client();
+		WebResource resource = client.resource(url + "api/client/").path(param);
+		resource.put();
 
+	}
 }
