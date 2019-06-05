@@ -3,7 +3,7 @@ package com.vladaver87.client.logic;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.vladaver87.client.exception.InvalidFloorNumberExcerpion;
+import com.vladaver87.client.exception.InvalidFloorNumberException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,8 +20,8 @@ public class ClientLogic implements Observable {
 		arrivalFloor = floor;
 		if (floor < 1 || floor > 7) {
 			try {
-				throw new InvalidFloorNumberExcerpion();
-			} catch (InvalidFloorNumberExcerpion e) {
+				throw new InvalidFloorNumberException();
+			} catch (InvalidFloorNumberException e) {
 				System.out.println("Invalid floor number");
 			}
 		} else {
@@ -33,8 +33,8 @@ public class ClientLogic implements Observable {
 	public void goToDestinationFloor(int floor) {
 		if (floor < 1 || floor > 7) {
 			try {
-				throw new InvalidFloorNumberExcerpion();
-			} catch (InvalidFloorNumberExcerpion e) {
+				throw new InvalidFloorNumberException();
+			} catch (InvalidFloorNumberException e) {
 				System.out.println("Invalid floor number");
 			}
 		}
