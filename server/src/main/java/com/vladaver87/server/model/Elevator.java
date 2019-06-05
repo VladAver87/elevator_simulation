@@ -20,6 +20,6 @@ public class Elevator {
 	@Value("${numberOfFloors}")
 	private Integer numberOfFloors;
 	private Integer currentFloor = 1;
-	private State state = State.STOP;
+	private State state = State.STOP;	
 
 }

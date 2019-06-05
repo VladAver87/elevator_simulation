@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.vladaver87.server.logic.ElevatorLogic;
-import com.vladaver87.server.model.Comand;
+import com.vladaver87.util.Comand;
 
 @RestController
 @RequestMapping("/api")

@@ -6,9 +6,10 @@ import com.vladaver87.client.logic.ClientLogic;
 
 public class App 
 {
-    public static void main( String[] args ) {
-    	
+    public static void main( String[] args )  {
+
     	ClientLogic clientLogic = new ClientLogic();
+    	clientLogic.setUrl(args[0]);
         
         System.out.println("Elevator on:" + clientLogic.checkElevatorFloor() + " floor");
         while(true) {
@@ -22,12 +23,11 @@ public class App
         if (command.equals("call")) {
         	System.out.println("What floor are you on?");
         	Integer floor = sc.nextInt();
-        	clientLogic.callElevator(floor);
-        	System.out.println("elevator is moving....");
+			clientLogic.callElevator(floor);
         }else if (command.equals("set")) {
         	System.out.println("What is destination floor?");
         	Integer floor = sc.nextInt();
-        	clientLogic.goToDestinationFloor(floor);      	
+			clientLogic.goToDestinationFloor(floor);
         }
         else if (command.equals("state")) {
         	System.out.println("Elevator state is: " +clientLogic.checkElevatorState());
