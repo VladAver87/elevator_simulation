@@ -18,7 +18,12 @@ public class ElevatorRestController {
 	
 	@PutMapping("/client/{floor}")
 	public void moveElevatorToClientFloor(@PathVariable String floor) {
-		elevatorLogic.handleEvent(Integer.valueOf(floor));
+		elevatorLogic.callOnFloor(Integer.valueOf(floor));
+	}
+	
+	@PutMapping("/elevator/{floor}")
+	public void moveElevatorToDestinationFloor(@PathVariable String floor) {
+		elevatorLogic.callFromElevator(Integer.valueOf(floor));
 	}
 	
 	@GetMapping("/client/checkCurrentFloor")

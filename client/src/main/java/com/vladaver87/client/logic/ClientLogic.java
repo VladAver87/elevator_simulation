@@ -21,7 +21,7 @@ public class ClientLogic {
 		if (floor < 1 || floor > Integer.valueOf(checkMaxFloors())) {
 			System.out.println("Invalid floor number");
 		} else {
-			notifyElevator(floor);
+			notifyElevatorClientFloor(floor);
 			System.out.println("elevator is moving....");
 		}
 	}
@@ -34,7 +34,7 @@ public class ClientLogic {
 			System.out.println(
 					"Wait i fiew seconds, elevator is on the " + Integer.valueOf(checkElevatorFloor()) + " " + "floor");
 		} else {
-			notifyElevator(floor);
+			notifyElevatorDestinationFloor(floor);
 		}
 	}
 
@@ -62,11 +62,17 @@ public class ClientLogic {
 		return output;
 	}
 	
-	public void notifyElevator(int floor) {
+	public void notifyElevatorClientFloor(int floor) {
 		String param = String.valueOf(floor);
 		Client client = new Client();
 		WebResource resource = client.resource(url + "api/client/").path(param);
 		resource.put();
-
+	}
+	
+	public void notifyElevatorDestinationFloor(int floor) {
+		String param = String.valueOf(floor);
+		Client client = new Client();
+		WebResource resource = client.resource(url + "api/elevator/").path(param);
+		resource.put();
 	}
 }

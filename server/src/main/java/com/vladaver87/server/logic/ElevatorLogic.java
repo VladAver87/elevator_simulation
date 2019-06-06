@@ -1,7 +1,6 @@
 package com.vladaver87.server.logic;
 
 import java.util.ArrayDeque;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +22,7 @@ import lombok.Setter;
 public class ElevatorLogic implements Observer{
 	
 	private Logger LOGGER = LoggerFactory.getLogger(ElevatorLogic.class);
-	private volatile Queue<Integer> queue = new ArrayDeque<>();
+	private volatile ArrayDeque<Integer> queue = new ArrayDeque<>();
 	private ExecutorService service = Executors.newSingleThreadExecutor();
 	
 	@Autowired
@@ -129,9 +128,18 @@ public class ElevatorLogic implements Observer{
 	}
 
 	@Override
-	public synchronized void handleEvent(int floor) {
+	public synchronized void callOnFloor(int floor) {
 		queue.add(floor);
-		LOGGER.info("Floor # {} is added to queue", floor);
+		LOGGER.info("Arrival floor # {} is added to queue", floor);
+		if (elevator.getState().equals(State.STOP)) {
+		moveElevatorToClientFloor();
+		}
+	}
+
+	@Override
+	public synchronized void callFromElevator(int floor) {
+		queue.addFirst(floor);
+		LOGGER.info("Destination floor # {} is added to queue", floor);
 		if (elevator.getState().equals(State.STOP)) {
 		moveElevatorToClientFloor();
 		}
