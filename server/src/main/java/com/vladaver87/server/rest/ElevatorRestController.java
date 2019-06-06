@@ -30,5 +30,10 @@ public class ElevatorRestController {
 	public String checkCurrentState() {
 		return elevatorLogic.getCurrentState().name();
 	}
+	
+	@GetMapping("/client/checkMaxFloors")
+	public Integer checkMaxFloors() {
+		return elevatorLogic.getMaxFloors();
+	}
 
 }

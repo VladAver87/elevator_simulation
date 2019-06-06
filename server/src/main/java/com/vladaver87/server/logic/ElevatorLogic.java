@@ -122,6 +122,11 @@ public class ElevatorLogic implements Observer{
 		
 		return elevator.getState();
 	}
+	
+	public int getMaxFloors() {
+		
+		return elevator.getNumberOfFloors();
+	}
 
 	@Override
 	public synchronized void handleEvent(int floor) {
