@@ -22,7 +22,8 @@ import lombok.Setter;
 public class ElevatorLogic implements Observer{
 	
 	private Logger LOGGER = LoggerFactory.getLogger(ElevatorLogic.class);
-	private volatile ArrayDeque<Integer> queue = new ArrayDeque<>();
+	private volatile ArrayDeque<Integer> insideCallsQueue = new ArrayDeque<>();
+	private volatile ArrayDeque<Integer> outsideCallsQueue = new ArrayDeque<>();
 	private ExecutorService service = Executors.newSingleThreadExecutor();
 	
 	@Autowired
@@ -38,21 +39,23 @@ public class ElevatorLogic implements Observer{
 
 			@Override
 			public void run() {
-				while(!queue.isEmpty()) {
-					Integer destinationFloor = queue.poll();
+				
+				while(!insideCallsQueue.isEmpty() || !outsideCallsQueue.isEmpty()) {
+					Integer destinationFloor = 0;
+					if (!insideCallsQueue.isEmpty()) {
+						destinationFloor = insideCallsQueue.pollFirst();
+					}else {
+						destinationFloor = outsideCallsQueue.pollFirst();
+					}				
 					
 					if (destinationFloor > elevator.getCurrentFloor()) {
-						boarding();
-						moveUp(destinationFloor);
-						arriving();
-					} else if (destinationFloor == elevator.getCurrentFloor()){
 						
-						boarding();
-						
+						moveUp(destinationFloor);						
+										
 					} else {
-						boarding();
+						
 						moveDown(destinationFloor);
-						arriving();
+						
 					}
 				}
 				elevator.setState(State.STOP);
@@ -63,24 +66,34 @@ public class ElevatorLogic implements Observer{
 	}
 	
 	public void moveUp(int destinationFloor) {
+		boarding();
 		elevator.setState(State.MOVE_UP);
 		while(elevator.getCurrentFloor() != destinationFloor) {
 			LOGGER.info("Elevator moving the {} floor", elevator.getCurrentFloor() + 1);
 			elevator.setCurrentFloor(elevator.getCurrentFloor() + 1);
 			sleep();
 			LOGGER.info("Elevator on the {} floor", elevator.getCurrentFloor());
-			
 		}
+		arriving();	
 	}
 	
 	public void moveDown(int destinationFloor) {
+		int lastFloor = destinationFloor;
+		boarding();
 		elevator.setState(State.MOVE_DOWN);
-		while(elevator.getCurrentFloor() != destinationFloor) {
+		while(elevator.getCurrentFloor() != destinationFloor) {		
+			if (!outsideCallsQueue.isEmpty() && outsideCallsQueue.getFirst() > lastFloor) {
+				destinationFloor = outsideCallsQueue.getFirst();
+			}
 			LOGGER.info("Elevator moving the {} floor", elevator.getCurrentFloor() - 1);
 			elevator.setCurrentFloor(elevator.getCurrentFloor() - 1);	
 			sleep();
-			LOGGER.info("Elevator on the {} floor", elevator.getCurrentFloor());
-			
+			LOGGER.info("Elevator on the {} floor", elevator.getCurrentFloor());	
+		}
+		arriving();
+		outsideCallsQueue.pollFirst();
+		if (elevator.getCurrentFloor() != lastFloor) {
+			moveDown(lastFloor);
 		}
 	}
 	
@@ -129,8 +142,8 @@ public class ElevatorLogic implements Observer{
 
 	@Override
 	public synchronized void callOnFloor(int floor) {
-		queue.add(floor);
-		LOGGER.info("Arrival floor # {} is added to queue", floor);
+		outsideCallsQueue.addLast(floor);
+		LOGGER.info("Arrival floor # {} is added to queue", floor);		
 		if (elevator.getState().equals(State.STOP)) {
 		moveElevatorToClientFloor();
 		}
@@ -138,7 +151,7 @@ public class ElevatorLogic implements Observer{
 
 	@Override
 	public synchronized void callFromElevator(int floor) {
-		queue.addFirst(floor);
+		insideCallsQueue.addLast(floor);
 		LOGGER.info("Destination floor # {} is added to queue", floor);
 		if (elevator.getState().equals(State.STOP)) {
 		moveElevatorToClientFloor();
