@@ -82,7 +82,7 @@ public class ElevatorLogic implements Observer{
 		boarding();
 		elevator.setState(State.MOVE_DOWN);
 		while(elevator.getCurrentFloor() != destinationFloor) {		
-			if (!outsideCallsQueue.isEmpty() && outsideCallsQueue.getFirst() > lastFloor) {
+			if (!outsideCallsQueue.isEmpty() && outsideCallsQueue.getFirst() > lastFloor && outsideCallsQueue.getFirst() < elevator.getCurrentFloor()) {
 				destinationFloor = outsideCallsQueue.getFirst();
 			}
 			LOGGER.info("Elevator moving the {} floor", elevator.getCurrentFloor() - 1);
@@ -142,19 +142,23 @@ public class ElevatorLogic implements Observer{
 
 	@Override
 	public synchronized void callOnFloor(int floor) {
-		outsideCallsQueue.addLast(floor);
-		LOGGER.info("Arrival floor # {} is added to queue", floor);		
-		if (elevator.getState().equals(State.STOP)) {
-		moveElevatorToClientFloor();
-		}
+		if (!insideCallsQueue.contains(floor)) {
+			outsideCallsQueue.addLast(floor);
+			LOGGER.info("Arrival floor # {} is added to queue", floor);	
+			if (elevator.getState().equals(State.STOP)) {
+				moveElevatorToClientFloor();
+				}
+		}		
 	}
 
 	@Override
 	public synchronized void callFromElevator(int floor) {
-		insideCallsQueue.addLast(floor);
-		LOGGER.info("Destination floor # {} is added to queue", floor);
-		if (elevator.getState().equals(State.STOP)) {
-		moveElevatorToClientFloor();
+		if (!outsideCallsQueue.contains(floor)) {
+			insideCallsQueue.addLast(floor);
+			LOGGER.info("Destination floor # {} is added to queue", floor);
+			if (elevator.getState().equals(State.STOP)) {
+			moveElevatorToClientFloor();
+			}
 		}
 	}
 
