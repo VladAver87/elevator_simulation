@@ -4,21 +4,24 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
-@NoArgsConstructor
 public class ClientLogic {
 
 	private String url;
 	private int arrivalFloor;
 	private int maxFloors;
+	
+	public ClientLogic(String url) {
+		this.url = url;
+		maxFloors = Integer.valueOf(checkMaxFloors());
+	}
 
 	public void callElevator(int floor) {
 		arrivalFloor = floor;
-		if (floor < 1 || floor > Integer.valueOf(checkMaxFloors())) {
+		if (floor < 1 || floor > maxFloors) {
 			System.out.println("Invalid floor number");
 		} else {
 			notifyElevatorClientFloor(floor);
@@ -27,7 +30,7 @@ public class ClientLogic {
 	}
 
 	public void goToDestinationFloor(int floor) {
-		if (floor < 1 || floor > Integer.valueOf(checkMaxFloors())) {
+		if (floor < 1 || floor > maxFloors) {
 			System.out.println("Invalid floor number");
 		}
 		if (Integer.valueOf(checkElevatorFloor()) != arrivalFloor) {

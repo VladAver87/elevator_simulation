@@ -19,11 +19,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Component
-public class ElevatorLogic implements Observer{
+public class ElevatorLogic {
 	
-	private Logger LOGGER = LoggerFactory.getLogger(ElevatorLogic.class);
-	private volatile ArrayDeque<Integer> insideCallsQueue = new ArrayDeque<>();
-	private volatile ArrayDeque<Integer> outsideCallsQueue = new ArrayDeque<>();
+	private final Logger LOGGER = LoggerFactory.getLogger(ElevatorLogic.class);
+	private final ArrayDeque<Integer> insideCallsQueue = new ArrayDeque<>();
+	private final ArrayDeque<Integer> outsideCallsQueue = new ArrayDeque<>();
 	private ExecutorService service = Executors.newSingleThreadExecutor();
 	
 	@Autowired
@@ -140,7 +140,6 @@ public class ElevatorLogic implements Observer{
 		return elevator.getNumberOfFloors();
 	}
 
-	@Override
 	public synchronized void callOnFloor(int floor) {
 		if (!insideCallsQueue.contains(floor)) {
 			outsideCallsQueue.addLast(floor);
@@ -151,7 +150,6 @@ public class ElevatorLogic implements Observer{
 		}		
 	}
 
-	@Override
 	public synchronized void callFromElevator(int floor) {
 		if (!outsideCallsQueue.contains(floor)) {
 			insideCallsQueue.addLast(floor);
