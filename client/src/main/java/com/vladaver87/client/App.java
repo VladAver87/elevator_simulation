@@ -3,10 +3,7 @@ package com.vladaver87.client;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import com.vladaver87.client.logic.ClientLogic;
-
-
 
 
 public class App 
@@ -33,11 +30,11 @@ public class App
         String command = sc.nextLine();
         if (command.equals("call")) {
         	System.out.println("What floor are you on?");
-        	Integer floor = sc.nextInt();
+        	Integer floor = Integer.valueOf(sc.nextLine());
 			clientLogic.callElevator(floor);
         }else if (command.equals("set")) {
         	System.out.println("What is destination floor?");
-        	Integer floor = sc.nextInt();
+        	Integer floor = Integer.valueOf(sc.nextLine());
 			clientLogic.goToDestinationFloor(floor);
         }
         else if (command.equals("state")) {
