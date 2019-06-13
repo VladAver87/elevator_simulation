@@ -26,18 +26,18 @@ public class ElevatorRestController {
 		elevatorLogic.callFromElevator(Integer.valueOf(floor));
 	}
 	
-	@GetMapping("/client/checkCurrentFloor")
-	public Integer checkCurrentFloor() {
+	@GetMapping("/client/currentFloor")
+	public Integer getCurrentFloor() {
 		return elevatorLogic.getCurrentFloor();
 	}
 	
-	@GetMapping("/client/checkCurrentState")
-	public String checkCurrentState() {
-		return elevatorLogic.getCurrentState().name();
+	@GetMapping("/client/currentState/{time}")
+	public String getCurrentState(@PathVariable String time) {
+		return elevatorLogic.getCurrentState(Long.valueOf(time));
 	}
 	
-	@GetMapping("/client/checkMaxFloors")
-	public Integer checkMaxFloors() {
+	@GetMapping("/client/maxFloors")
+	public Integer getMaxFloors() {
 		return elevatorLogic.getMaxFloors();
 	}
 

@@ -1,5 +1,7 @@
 package com.vladaver87.client;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,6 +13,7 @@ public class App
     public static void main( String[] args )  {
     	Scanner sc = new Scanner(System.in);
     	ClientLogic clientLogic = null;
+    	SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     	
     	if (args.length == 0 || !testUrl(args[0])) {
     		System.out.println("Restart client with a valid URL adress...for example localhost:8080");
@@ -19,7 +22,7 @@ public class App
     				clientLogic = new ClientLogic("http://" + args[0] + "/");
     			}
     	   
-        System.out.println("Elevator on:" + clientLogic.checkElevatorFloor() + " floor");
+        System.out.println("Elevator on:" + clientLogic.getElevatorFloor() + " floor");
         while(true) {
         System.out.println("Commands: ");
         System.out.println("To call elevator type: call");
@@ -38,10 +41,10 @@ public class App
 			clientLogic.goToDestinationFloor(floor);
         }
         else if (command.equals("state")) {
-        	System.out.println("Elevator state is: " +clientLogic.checkElevatorState());
+        	System.out.println("" + dateFormat.format(new Date().getTime()) + " "+clientLogic.getElevatorState(new Date().getTime()));
         }
         else if (command.equals("floor")) {
-        	System.out.println("Elevator current floor is: " +clientLogic.checkElevatorFloor());
+        	System.out.println("Elevator current floor is: " +clientLogic.getElevatorFloor());
         }
         else if (command.equals("exit")) {
         	sc.close();

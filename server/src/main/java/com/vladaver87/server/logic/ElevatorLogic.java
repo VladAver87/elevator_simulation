@@ -1,161 +1,121 @@
 package com.vladaver87.server.logic;
 
 import java.util.ArrayDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import javax.annotation.PreDestroy;
+import java.util.Date;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import com.vladaver87.server.model.Elevator;
 import com.vladaver87.server.model.State;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
 @Component
 public class ElevatorLogic {
-	
+	private final Integer speed;
+	private final Integer delay;
+	private final Integer numberOfFloors;
 	private final Logger LOGGER = LoggerFactory.getLogger(ElevatorLogic.class);
 	private final ArrayDeque<Integer> insideCallsQueue = new ArrayDeque<>();
 	private final ArrayDeque<Integer> outsideCallsQueue = new ArrayDeque<>();
-	private ExecutorService service = Executors.newSingleThreadExecutor();
+	private Elevator elevator;
+	private ElevatorStateStorage elevatorStateStorage;
 	
 	@Autowired
-	private Elevator elevator;
-	
-	@PreDestroy
-	public void shutdown() {
-		service.shutdown();
+	public ElevatorLogic(@Value("${speed}") Integer speed, @Value("${delay}") Integer delay,
+			@Value("${numberOfFloors}") Integer numberOfFloors, ElevatorStateStorage elevatorStateStorage) {
+		this.speed = speed;
+		this.delay = delay;
+		this.numberOfFloors = numberOfFloors;
+		this.elevatorStateStorage = elevatorStateStorage;
+		elevator = new Elevator();
 	}
 	
-	public synchronized void moveElevatorToClientFloor() {
-		service.execute(new Runnable() {
+	@PostConstruct
+	public void init() {
+		elevatorStateStorage.addState(new Date().getTime(), elevator.getState(), elevator.getCurrentFloor());
+	}
 
-			@Override
-			public void run() {
-				
-				while(!insideCallsQueue.isEmpty() || !outsideCallsQueue.isEmpty()) {
-					Integer destinationFloor = 0;
-					if (!insideCallsQueue.isEmpty()) {
-						destinationFloor = insideCallsQueue.pollFirst();
-					}else {
-						destinationFloor = outsideCallsQueue.pollFirst();
-					}				
-					
-					if (destinationFloor > elevator.getCurrentFloor()) {
-						
-						moveUp(destinationFloor);						
-										
-					} else {
-						
-						moveDown(destinationFloor);
-						
-					}
-				}
-				elevator.setState(State.STOP);
+	public void moveElevatorToClientFloor() {
+
+		while (!insideCallsQueue.isEmpty() || !outsideCallsQueue.isEmpty()) {
+			Integer destinationFloor = 0;
+			if (!insideCallsQueue.isEmpty()) {
+				destinationFloor = insideCallsQueue.pollFirst();
+			} else {
+				destinationFloor = outsideCallsQueue.pollFirst();
 			}
-
-		});
-		
-	}
-	
-	public void moveUp(int destinationFloor) {
-		boarding();
-		elevator.setState(State.MOVE_UP);
-		while(elevator.getCurrentFloor() != destinationFloor) {
-			LOGGER.info("Elevator moving the {} floor", elevator.getCurrentFloor() + 1);
-			elevator.setCurrentFloor(elevator.getCurrentFloor() + 1);
-			sleep();
-			LOGGER.info("Elevator on the {} floor", elevator.getCurrentFloor());
+			if (destinationFloor > elevator.getCurrentFloor()) {
+				moveUp(destinationFloor);
+			} else {
+				moveDown(destinationFloor);
+			}
 		}
-		arriving();	
 	}
-	
+
+	public void moveUp(int destinationFloor) {
+		long currentTime = new Date().getTime();
+		elevatorStateStorage.addState(currentTime, State.STARTING, elevator.getCurrentFloor());
+		elevatorStateStorage.addState(currentTime + delay * 1000, State.MOVE_UP, destinationFloor);
+		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor, State.STOPPING, destinationFloor);
+		elevator.setCurrentFloor(destinationFloor);
+		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor + delay * 1000, State.STOP, elevator.getCurrentFloor());
+	}
+
 	public void moveDown(int destinationFloor) {
 		int lastFloor = destinationFloor;
-		boarding();
+
 		elevator.setState(State.MOVE_DOWN);
-		while(elevator.getCurrentFloor() != destinationFloor) {		
-			if (!outsideCallsQueue.isEmpty() && outsideCallsQueue.getFirst() > lastFloor && outsideCallsQueue.getFirst() < elevator.getCurrentFloor()) {
+		while (elevator.getCurrentFloor() != destinationFloor) {
+			if (!outsideCallsQueue.isEmpty() && outsideCallsQueue.getFirst() > lastFloor
+					&& outsideCallsQueue.getFirst() < elevator.getCurrentFloor()) {
 				destinationFloor = outsideCallsQueue.getFirst();
 			}
 			LOGGER.info("Elevator moving the {} floor", elevator.getCurrentFloor() - 1);
-			elevator.setCurrentFloor(elevator.getCurrentFloor() - 1);	
-			sleep();
-			LOGGER.info("Elevator on the {} floor", elevator.getCurrentFloor());	
+			elevator.setCurrentFloor(elevator.getCurrentFloor() - 1);
+
+			LOGGER.info("Elevator on the {} floor", elevator.getCurrentFloor());
 		}
-		arriving();
+
 		outsideCallsQueue.pollFirst();
 		if (elevator.getCurrentFloor() != lastFloor) {
 			moveDown(lastFloor);
 		}
 	}
-	
-	public void boarding() {
-		elevator.setState(State.STARTING);
-		LOGGER.info("Elevator is starting...");
-		try {
-			TimeUnit.SECONDS.sleep(elevator.getDelay());
-		} catch (InterruptedException e) {
-			LOGGER.error(e.getMessage(), e);;
-		}
-	}
-	
-	public void arriving() {
-		elevator.setState(State.STOPPING);
-		LOGGER.info("Elevator is stopping...");
-		try {
-			TimeUnit.SECONDS.sleep(elevator.getDelay());
-		} catch (InterruptedException e) {
-			LOGGER.error(e.getMessage(), e);;
-		}
-	}
-	
-	public void sleep() {
-		try {
-			TimeUnit.SECONDS.sleep(elevator.getSpeed());
-		} catch (InterruptedException e) {
-			LOGGER.error(e.getMessage(), e);;
-		}
-	}
-	
+
+
 	public int getCurrentFloor() {
-		
+
 		return elevator.getCurrentFloor();
 	}
-	
-	public State getCurrentState() {
-		
-		return elevator.getState();
-	}
-	
-	public int getMaxFloors() {
-		
-		return elevator.getNumberOfFloors();
+
+	public String getCurrentState(long requestTime) {
+
+		return elevatorStateStorage.getState(requestTime);
 	}
 
-	public synchronized void callOnFloor(int floor) {
+	public int getMaxFloors() {
+
+		return numberOfFloors;
+	}
+
+	public void callOnFloor(int floor) {
 		if (!insideCallsQueue.contains(floor)) {
 			outsideCallsQueue.addLast(floor);
-			LOGGER.info("Arrival floor # {} is added to queue", floor);	
+			LOGGER.info("Arrival floor # {} is added to queue", floor);
 			if (elevator.getState().equals(State.STOP)) {
 				moveElevatorToClientFloor();
-				}
-		}		
+			}
+		}
 	}
 
-	public synchronized void callFromElevator(int floor) {
+	public void callFromElevator(int floor) {
 		if (!outsideCallsQueue.contains(floor)) {
 			insideCallsQueue.addLast(floor);
 			LOGGER.info("Destination floor # {} is added to queue", floor);
 			if (elevator.getState().equals(State.STOP)) {
-			moveElevatorToClientFloor();
+				moveElevatorToClientFloor();
 			}
 		}
 	}
