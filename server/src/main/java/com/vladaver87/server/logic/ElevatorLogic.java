@@ -56,11 +56,12 @@ public class ElevatorLogic {
 
 	public void moveUp(int destinationFloor) {
 		long currentTime = new Date().getTime();
+		long maxTime = currentTime + delay * 1000 + speed * 1000 * destinationFloor + delay * 1000;
 		elevatorStateStorage.addState(currentTime, State.STARTING, elevator.getCurrentFloor());
 		elevatorStateStorage.addState(currentTime + delay * 1000, State.MOVE_UP, destinationFloor);
-		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor, State.STOPPING, destinationFloor);
 		elevator.setCurrentFloor(destinationFloor);
-		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor + delay * 1000, State.STOP, elevator.getCurrentFloor());
+		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor, State.STOPPING, destinationFloor);
+		elevatorStateStorage.addState(maxTime, State.STOP, elevator.getCurrentFloor());
 	}
 
 	public void moveDown(int destinationFloor) {
