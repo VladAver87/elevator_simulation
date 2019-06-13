@@ -21,7 +21,7 @@ public class ElevatorLogic {
 	private final ArrayDeque<Integer> outsideCallsQueue = new ArrayDeque<>();
 	private Elevator elevator;
 	private ElevatorStateStorage elevatorStateStorage;
-	
+
 	@Autowired
 	public ElevatorLogic(@Value("${speed}") Integer speed, @Value("${delay}") Integer delay,
 			@Value("${numberOfFloors}") Integer numberOfFloors, ElevatorStateStorage elevatorStateStorage) {
@@ -31,7 +31,7 @@ public class ElevatorLogic {
 		this.elevatorStateStorage = elevatorStateStorage;
 		elevator = new Elevator();
 	}
-	
+
 	@PostConstruct
 	public void init() {
 		elevatorStateStorage.addState(new Date().getTime(), elevator.getState(), elevator.getCurrentFloor());
@@ -60,31 +60,24 @@ public class ElevatorLogic {
 		elevatorStateStorage.addState(currentTime, State.STARTING, elevator.getCurrentFloor());
 		elevatorStateStorage.addState(currentTime + delay * 1000, State.MOVE_UP, destinationFloor);
 		elevator.setCurrentFloor(destinationFloor);
-		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor, State.STOPPING, destinationFloor);
+		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor, State.STOPPING,
+				destinationFloor);
 		elevatorStateStorage.addState(maxTime, State.STOP, elevator.getCurrentFloor());
 	}
 
 	public void moveDown(int destinationFloor) {
-		int lastFloor = destinationFloor;
+//		int lastFloor = destinationFloor;
+//		int currentFloor = elevator.getCurrentFloor();
+		long currentTime = new Date().getTime();
+		long maxTime = currentTime + delay * 1000 + speed * 1000 * destinationFloor + delay * 1000;
+		elevatorStateStorage.addState(currentTime, State.STARTING, elevator.getCurrentFloor());
+		elevatorStateStorage.addState(currentTime + delay * 1000, State.MOVE_DOWN, destinationFloor);
+		elevator.setCurrentFloor(destinationFloor);
+		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor, State.STOPPING,
+				destinationFloor);
+		elevatorStateStorage.addState(maxTime, State.STOP, elevator.getCurrentFloor());
 
-		elevator.setState(State.MOVE_DOWN);
-		while (elevator.getCurrentFloor() != destinationFloor) {
-			if (!outsideCallsQueue.isEmpty() && outsideCallsQueue.getFirst() > lastFloor
-					&& outsideCallsQueue.getFirst() < elevator.getCurrentFloor()) {
-				destinationFloor = outsideCallsQueue.getFirst();
-			}
-			LOGGER.info("Elevator moving the {} floor", elevator.getCurrentFloor() - 1);
-			elevator.setCurrentFloor(elevator.getCurrentFloor() - 1);
-
-			LOGGER.info("Elevator on the {} floor", elevator.getCurrentFloor());
-		}
-
-		outsideCallsQueue.pollFirst();
-		if (elevator.getCurrentFloor() != lastFloor) {
-			moveDown(lastFloor);
-		}
 	}
-
 
 	public int getCurrentFloor() {
 
