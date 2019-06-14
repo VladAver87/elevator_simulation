@@ -19,14 +19,18 @@ public class ElevatorStateStorage {
 		return elevatorTimeStates;
 	}
 	
-	public void addState(long time, State state, int destinationFloor) {
-		ElevatorTimeState elevatorTimeState = new ElevatorTimeState(time, state, destinationFloor);
+	public void addState(long time, State state, int destinationFloor, int currentFloor) {
+		ElevatorTimeState elevatorTimeState = new ElevatorTimeState(time, state, destinationFloor, currentFloor);
 		elevatorTimeStates.add(elevatorTimeState);
 	}
 	
 	public String getState(long requestTime) {
 		ElevatorTimeState result = elevatorTimeStates.lower(new ElevatorTimeState(requestTime));
 		return result.toString();
+	}
+	
+	public long getLastTime() {
+		return elevatorTimeStates.last().getTime();
 	}
 	
 }

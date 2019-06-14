@@ -1,22 +1,25 @@
 package com.vladaver87.server.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ElevatorTimeState  {
 	
 	private long time = new Date().getTime();
-	private State state;
-	private int floor;
-	
+	private State state = State.STOP;
+	private int destinationFloor;
+	private int currentFloor = 1;
+	private SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
 	
 	public ElevatorTimeState(long time) {
 		this.time = time;
 	}
 
-	public ElevatorTimeState(long time, State state, int floor) {
+	public ElevatorTimeState(long time, State state, int destinationFloor, int currentFloor) {
 		this.time = time;
 		this.state = state;
-		this.floor = floor;
+		this.destinationFloor = destinationFloor;
+		this.currentFloor = currentFloor;
 	}
 
 	public long getTime() {
@@ -36,24 +39,27 @@ public class ElevatorTimeState  {
 	}
 
 	public int getDestinationFloor() {
-		return floor;
+		return destinationFloor;
 	}
 
 	public void setDestinationFloor(int destinationFloor) {
-		this.floor = destinationFloor;
+		this.destinationFloor = destinationFloor;
 	}
+
+	public int getCurrentFloor() {
+		return currentFloor;
+	}
+
+	public void setCurrentFloor(int currentFloor) {
+		this.currentFloor = currentFloor;
+	}
+	
+	
 
 	@Override
 	public String toString() {
-		return "[state =" + state + ", floor =" + floor + "]";
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (time ^ (time >>> 32));
-		return result;
+		return "[time = " + format.format(time) + ", state = " + state + ", destination floor = " + destinationFloor
+				+ ", current floor = " + currentFloor + "]";
 	}
 
 	@Override
