@@ -57,32 +57,42 @@ public class ElevatorLogic {
 	public void moveUp(int destinationFloor) {
 		long currentTime = new Date().getTime();
 		if (currentTime < elevatorStateStorage.getLastTime()) {
-			currentTime = elevatorStateStorage.getLastTime() + delay*1000;
-		}	
+			currentTime = elevatorStateStorage.getLastTime() + delay * 1000;
+		}
 		long maxTime = currentTime + delay * 1000 + speed * 1000 * destinationFloor + delay * 1000;
-		elevatorStateStorage.addState(currentTime, State.STARTING,destinationFloor, elevator.getCurrentFloor());
-		elevatorStateStorage.addState(currentTime + delay * 1000, State.MOVE_UP, destinationFloor, elevator.getCurrentFloor());
-		for (long i = currentTime + delay * 1000 + speed * 1000; i < currentTime + delay * 1000 + speed * 1000 * destinationFloor; i += speed * 1000) {
+		elevatorStateStorage.addState(currentTime, State.STARTING, destinationFloor, elevator.getCurrentFloor());
+		elevatorStateStorage.addState(currentTime + delay * 1000, State.MOVE_UP, destinationFloor,
+				elevator.getCurrentFloor());
+		for (long i = currentTime + delay * 1000 + speed * 1000; i < currentTime + delay * 1000
+				+ speed * 1000 * destinationFloor; i += speed * 1000) {
 			elevator.setCurrentFloor(elevator.getCurrentFloor() + 1);
 			elevatorStateStorage.addState(i, State.MOVE_UP, destinationFloor, elevator.getCurrentFloor());
 		}
 		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor, State.STOPPING,
 				destinationFloor, elevator.getCurrentFloor());
-		elevatorStateStorage.addState(maxTime, State.STOP,0, elevator.getCurrentFloor());
+		elevatorStateStorage.addState(maxTime, State.STOP, 0, elevator.getCurrentFloor());
 		elevatorStateStorage.getElevatorStatesLog().forEach(System.out::println);
 	}
 
 	public void moveDown(int destinationFloor) {
-//		int lastFloor = destinationFloor;
-//		int currentFloor = elevator.getCurrentFloor();
+		int arrivalFloor = elevator.getCurrentFloor();
 		long currentTime = new Date().getTime();
-		long maxTime = currentTime + delay * 1000 + speed * 1000 * destinationFloor + delay * 1000;
-		elevatorStateStorage.addState(currentTime, State.STARTING, elevator.getCurrentFloor());
-		elevatorStateStorage.addState(currentTime + delay * 1000, State.MOVE_DOWN, destinationFloor);
-		elevator.setCurrentFloor(destinationFloor);
-		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor, State.STOPPING,
-				destinationFloor);
-		elevatorStateStorage.addState(maxTime, State.STOP, elevator.getCurrentFloor());
+		if (currentTime < elevatorStateStorage.getLastTime()) {
+			currentTime = elevatorStateStorage.getLastTime() + delay * 1000;
+		}
+		long maxTime = currentTime + delay * 1000 + speed * 1000 * arrivalFloor + delay * 1000;
+		elevatorStateStorage.addState(currentTime, State.STARTING, destinationFloor, elevator.getCurrentFloor());
+		elevatorStateStorage.addState(currentTime + delay * 1000, State.MOVE_DOWN, destinationFloor,
+				elevator.getCurrentFloor());
+		for (long i = currentTime + delay * 1000 + speed * 1000; i < currentTime + delay * 1000
+				+ speed * 1000 * arrivalFloor; i += speed * 1000) {
+			elevator.setCurrentFloor(elevator.getCurrentFloor() - 1);
+			elevatorStateStorage.addState(i, State.MOVE_DOWN, destinationFloor, elevator.getCurrentFloor());
+		}
+		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * arrivalFloor, State.STOPPING,
+				destinationFloor, elevator.getCurrentFloor());
+		elevatorStateStorage.addState(maxTime, State.STOP, 0, elevator.getCurrentFloor());
+		elevatorStateStorage.getElevatorStatesLog().forEach(System.out::println);
 
 	}
 
@@ -105,9 +115,7 @@ public class ElevatorLogic {
 		if (!insideCallsQueue.contains(floor)) {
 			outsideCallsQueue.addLast(floor);
 			LOGGER.info("Arrival floor # {} is added to queue", floor);
-			if (elevator.getState().equals(State.STOP)) {
-				moveElevatorToClientFloor();
-			}
+			moveElevatorToClientFloor();
 		}
 	}
 
@@ -115,9 +123,7 @@ public class ElevatorLogic {
 		if (!outsideCallsQueue.contains(floor)) {
 			insideCallsQueue.addLast(floor);
 			LOGGER.info("Destination floor # {} is added to queue", floor);
-			if (elevator.getState().equals(State.STOP)) {
-				moveElevatorToClientFloor();
-			}
+			moveElevatorToClientFloor();
 		}
 	}
 
