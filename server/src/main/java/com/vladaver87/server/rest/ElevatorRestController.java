@@ -27,8 +27,8 @@ public class ElevatorRestController {
 	}
 	
 	@GetMapping("/client/currentFloor")
-	public Integer getCurrentFloor() {
-		return elevatorLogic.getCurrentFloor();
+	public Integer getElevatorStopFloor() {
+		return elevatorLogic.getElevatorStopFloor();
 	}
 	
 	@GetMapping("/client/currentState/{time}")
