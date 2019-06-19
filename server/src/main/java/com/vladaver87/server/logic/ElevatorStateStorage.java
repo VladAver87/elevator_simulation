@@ -1,6 +1,6 @@
 package com.vladaver87.server.logic;
 
-import java.util.Date;
+import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 import com.vladaver87.server.model.ElevatorTimeState;
@@ -33,6 +33,9 @@ public class ElevatorStateStorage {
 		return result;
 	}
 	
+	public long getTimeOnRequestFloor(int floor) {
+		return elevatorTimeStates.lower(new ElevatorTimeState(floor)).getTime();
+	}
 	public String getCurrentState(long requestTime) {
 		String result = elevatorTimeStates.lower(new ElevatorTimeState(requestTime)).getState().name();
 		return result;
@@ -44,13 +47,6 @@ public class ElevatorStateStorage {
 	
 	public int getElevatorStopFloor() {
 		return elevatorTimeStates.last().getCurrentFloor();
-	}
-	
-	public void clearLogAfterTimeStump(){
-		NavigableSet<ElevatorTimeState> result = new TreeSet<>(new ElevatorTimeStateComparator());
-		result.addAll(elevatorTimeStates.headSet(new ElevatorTimeState(new Date().getTime()), true));
-		elevatorTimeStates.clear();
-		elevatorTimeStates.addAll(result);
 	}
 	
 }

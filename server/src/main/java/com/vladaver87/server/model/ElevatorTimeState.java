@@ -10,9 +10,18 @@ public class ElevatorTimeState  {
 	private int destinationFloor;
 	private int currentFloor = 1;
 	private SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+		
 	
+	public ElevatorTimeState() {
+
+	}
+
 	public ElevatorTimeState(long time) {
 		this.time = time;
+	}
+	
+	public ElevatorTimeState(int currentFloor) {
+		this.currentFloor = currentFloor;
 	}
 
 	public ElevatorTimeState(long time, State state, int destinationFloor, int currentFloor) {

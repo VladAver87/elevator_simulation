@@ -1,13 +1,18 @@
 package com.vladaver87.server.logic;
 
+import java.sql.Time;
 import java.util.ArrayDeque;
 import java.util.Date;
+import java.util.Iterator;
+
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.vladaver87.server.model.ElevatorTimeState;
 import com.vladaver87.server.model.State;
 
 @Component
@@ -34,7 +39,7 @@ public class ElevatorLogic {
 	}
 
 	public void moveElevatorToClientFloor() {
-		int destinationFloor = elevatorCallsQueue.getFirst();
+		int destinationFloor = elevatorCallsQueue.pollFirst();
 		if (destinationFloor > elevatorStateStorage.getCurrentFloor(new Date().getTime())) {
 			moveUp(destinationFloor);
 		} else {
@@ -44,7 +49,6 @@ public class ElevatorLogic {
 
 	public void moveUp(int destinationFloor) {
 		long currentTime = new Date().getTime();
-		elevatorCallsQueue.pollFirst();
 		if (currentTime < elevatorStateStorage.getLastTime()) {
 			currentTime = elevatorStateStorage.getLastTime() + delay * 1000;
 		}
@@ -65,37 +69,44 @@ public class ElevatorLogic {
 	}
 
 	public void moveDown(int destinationFloor) {
-		elevatorCallsQueue.pollFirst();
+		int lastStopFloor = elevatorStateStorage.getElevatorStopFloor();
+		if (destinationFloor > lastStopFloor) {
+			addStopStateIfMoveDown(destinationFloor);		
+		} else {
 		long currentTime = new Date().getTime();
-		int nextFloor = 0;
-		int currentFloor = elevatorStateStorage.getCurrentFloor(currentTime);
-		int arrivalFloor = elevatorStateStorage.getElevatorStopFloor();
-		if (!elevatorCallsQueue.isEmpty()) {
-			nextFloor = elevatorCallsQueue.getFirst();
-		}
 		if (currentTime < elevatorStateStorage.getLastTime()) {
 			currentTime = elevatorStateStorage.getLastTime() + delay * 1000;
 		}
-		if (nextFloor > destinationFloor && nextFloor < currentFloor) {
-			elevatorCallsQueue.addFirst(destinationFloor);
-			destinationFloor = nextFloor;
-			elevatorStateStorage.clearLogAfterTimeStump();
-
-		}
-		long maxTime = currentTime + delay * 1000 + speed * 1000 * arrivalFloor + delay * 1000;
+		long maxTime = currentTime + delay * 1000 + speed * 1000 * lastStopFloor + delay * 1000;
 		elevatorStateStorage.addState(currentTime, State.STARTING, destinationFloor,
 				elevatorStateStorage.getElevatorStopFloor());
 		elevatorStateStorage.addState(currentTime + delay * 1000, State.MOVE_DOWN, destinationFloor,
 				elevatorStateStorage.getElevatorStopFloor());
 		for (int i = elevatorStateStorage.getElevatorStopFloor(); i > destinationFloor; i--) {
-			long time = currentTime + delay * 1000 + speed * 1000 * (arrivalFloor - i + 1);
+			long time = currentTime + delay * 1000 + speed * 1000 * (lastStopFloor - i + 1);
 			elevatorStateStorage.addState(time, State.MOVE_DOWN, destinationFloor, i - 1);
 		}
-		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * arrivalFloor, State.STOPPING,
+		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * lastStopFloor, State.STOPPING,
 				destinationFloor, elevatorStateStorage.getElevatorStopFloor());
 		elevatorStateStorage.addState(maxTime, State.STOP, 0, elevatorStateStorage.getElevatorStopFloor());
+		}
 		elevatorStateStorage.getElevatorStatesLog().forEach(System.out::println);
-
+	}
+	
+	public void addStopStateIfMoveDown(int destinationFloor){
+		Iterator<ElevatorTimeState> iterator = elevatorStateStorage.getElevatorStatesLog().descendingIterator();
+		while (iterator.hasNext()) {
+			ElevatorTimeState temp = iterator.next();
+			if (temp.getCurrentFloor() == destinationFloor) {
+				temp.setState(State.STOPPING);
+				temp.setCurrentFloor(destinationFloor);
+				temp.setDestinationFloor(destinationFloor);
+				elevatorStateStorage.getElevatorStatesLog().add(new ElevatorTimeState(temp.getTime() + delay * 1000 , 
+						State.STARTING, destinationFloor,  destinationFloor));
+				break;
+			}
+			temp.setTime(temp.getTime() + delay * 1000);
+		}
 	}
 
 	public int getElevatorStopFloor() {
