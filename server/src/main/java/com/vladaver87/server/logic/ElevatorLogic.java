@@ -71,7 +71,7 @@ public class ElevatorLogic {
 		int lastStopFloor = elevatorStateStorage.getElevatorStopFloor();
 		long currentTime = new Date().getTime();
 		if (destinationFloor > lastStopFloor && destinationFloor < elevatorStateStorage.getCurrentFloor(currentTime)) {
-			addStopStateIfMoveDown(destinationFloor);		
+			addStopFloorIfMoveDown(destinationFloor);		
 		} else {
 		if (currentTime < elevatorStateStorage.getLastTime()) {
 			currentTime = elevatorStateStorage.getLastTime() + delay * 1000;
@@ -93,19 +93,19 @@ public class ElevatorLogic {
 		elevatorStateStorage.getElevatorStatesLog().forEach(System.out::println);
 	}
 	
-	private void addStopStateIfMoveDown(int destinationFloor){
+	private void addStopFloorIfMoveDown(int destinationFloor){
 		Iterator<ElevatorTimeState> iterator = elevatorStateStorage.getElevatorStatesLog().descendingIterator();
 		while (iterator.hasNext()) {
-			ElevatorTimeState temp = iterator.next();
-			if (temp.getCurrentFloor() == destinationFloor) {
-				temp.setState(State.STOPPING);
-				temp.setCurrentFloor(destinationFloor);
-				temp.setDestinationFloor(destinationFloor);
-				elevatorStateStorage.getElevatorStatesLog().add(new ElevatorTimeState(temp.getTime() + delay * 1000 , 
+			ElevatorTimeState currentElevatorPosition = iterator.next();
+			if (currentElevatorPosition.getCurrentFloor() == destinationFloor) {
+				currentElevatorPosition.setState(State.STOPPING);
+				currentElevatorPosition.setCurrentFloor(destinationFloor);
+				currentElevatorPosition.setDestinationFloor(destinationFloor);
+				elevatorStateStorage.getElevatorStatesLog().add(new ElevatorTimeState(currentElevatorPosition.getTime() + delay * 1000 , 
 						State.STARTING, destinationFloor,  destinationFloor));
 				break;
 			}
-			temp.setTime(temp.getTime() + delay * 1000);
+			currentElevatorPosition.setTime(currentElevatorPosition.getTime() + delay * 1000);
 		}
 	}
 
