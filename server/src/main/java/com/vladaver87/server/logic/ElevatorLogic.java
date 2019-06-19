@@ -1,17 +1,14 @@
 package com.vladaver87.server.logic;
 
-import java.sql.Time;
 import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.Iterator;
-
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import com.vladaver87.server.model.ElevatorTimeState;
 import com.vladaver87.server.model.State;
 
@@ -35,7 +32,7 @@ public class ElevatorLogic {
 
 	@PostConstruct
 	public void init() {
-		elevatorStateStorage.addState(new Date().getTime(), State.STOP, 0, 4);
+		elevatorStateStorage.addState(new Date().getTime(), State.STOP, 0, 1);
 	}
 
 	public void moveElevatorToClientFloor() {
@@ -64,16 +61,18 @@ public class ElevatorLogic {
 		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor, State.STOPPING,
 				destinationFloor, elevatorStateStorage.getElevatorStopFloor());
 		elevatorStateStorage.addState(maxTime, State.STOP, 0, elevatorStateStorage.getElevatorStopFloor());
+		
+		//to see the changing of plain
 		elevatorStateStorage.getElevatorStatesLog().forEach(System.out::println);
 
 	}
 
 	public void moveDown(int destinationFloor) {
 		int lastStopFloor = elevatorStateStorage.getElevatorStopFloor();
-		if (destinationFloor > lastStopFloor) {
+		long currentTime = new Date().getTime();
+		if (destinationFloor > lastStopFloor && destinationFloor < elevatorStateStorage.getCurrentFloor(currentTime)) {
 			addStopStateIfMoveDown(destinationFloor);		
 		} else {
-		long currentTime = new Date().getTime();
 		if (currentTime < elevatorStateStorage.getLastTime()) {
 			currentTime = elevatorStateStorage.getLastTime() + delay * 1000;
 		}
@@ -90,10 +89,11 @@ public class ElevatorLogic {
 				destinationFloor, elevatorStateStorage.getElevatorStopFloor());
 		elevatorStateStorage.addState(maxTime, State.STOP, 0, elevatorStateStorage.getElevatorStopFloor());
 		}
+		//to see the changing of plain
 		elevatorStateStorage.getElevatorStatesLog().forEach(System.out::println);
 	}
 	
-	public void addStopStateIfMoveDown(int destinationFloor){
+	private void addStopStateIfMoveDown(int destinationFloor){
 		Iterator<ElevatorTimeState> iterator = elevatorStateStorage.getElevatorStatesLog().descendingIterator();
 		while (iterator.hasNext()) {
 			ElevatorTimeState temp = iterator.next();

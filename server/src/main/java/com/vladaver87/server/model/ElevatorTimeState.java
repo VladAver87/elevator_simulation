@@ -1,6 +1,5 @@
 package com.vladaver87.server.model;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ElevatorTimeState  {
@@ -9,19 +8,10 @@ public class ElevatorTimeState  {
 	private State state = State.STOP;
 	private int destinationFloor;
 	private int currentFloor = 1;
-	private SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
 		
-	
-	public ElevatorTimeState() {
-
-	}
 
 	public ElevatorTimeState(long time) {
 		this.time = time;
-	}
-	
-	public ElevatorTimeState(int currentFloor) {
-		this.currentFloor = currentFloor;
 	}
 
 	public ElevatorTimeState(long time, State state, int destinationFloor, int currentFloor) {
@@ -67,7 +57,7 @@ public class ElevatorTimeState  {
 
 	@Override
 	public String toString() {
-		return "[time = " + format.format(time) + ", state = " + state + ", destination floor = " + destinationFloor
+		return "[state = " + state + ", destination floor = " + destinationFloor
 				+ ", current floor = " + currentFloor + "]";
 	}
 
