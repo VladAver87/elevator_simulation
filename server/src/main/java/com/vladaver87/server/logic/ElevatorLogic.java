@@ -45,6 +45,9 @@ public class ElevatorLogic {
 	}
 
 	public void moveUp(int destinationFloor) {
+		if (destinationFloor < elevatorStateStorage.getElevatorStopFloor()) {
+			addPassingStop(destinationFloor);
+		} else {
 		long currentTime = new Date().getTime();
 		if (currentTime < elevatorStateStorage.getLastTime()) {
 			currentTime = elevatorStateStorage.getLastTime() + delay * 1000;
@@ -61,9 +64,9 @@ public class ElevatorLogic {
 		elevatorStateStorage.addState(currentTime + delay * 1000 + speed * 1000 * destinationFloor, State.STOPPING,
 				destinationFloor, elevatorStateStorage.getElevatorStopFloor());
 		elevatorStateStorage.addState(maxTime, State.STOP, 0, elevatorStateStorage.getElevatorStopFloor());
-		
+		}
 		//to see the changing of plain
-		elevatorStateStorage.getElevatorStatesLog().forEach(System.out::println);
+		elevatorStateStorage.getElevatorStatesLog().forEach(currentState -> LOGGER.info(currentState.toString()));
 
 	}
 
@@ -71,7 +74,7 @@ public class ElevatorLogic {
 		int lastStopFloor = elevatorStateStorage.getElevatorStopFloor();
 		long currentTime = new Date().getTime();
 		if (destinationFloor > lastStopFloor && destinationFloor < elevatorStateStorage.getCurrentFloor(currentTime)) {
-			addStopFloorIfMoveDown(destinationFloor);		
+			addPassingStop(destinationFloor);		
 		} else {
 		if (currentTime < elevatorStateStorage.getLastTime()) {
 			currentTime = elevatorStateStorage.getLastTime() + delay * 1000;
@@ -90,10 +93,10 @@ public class ElevatorLogic {
 		elevatorStateStorage.addState(maxTime, State.STOP, 0, elevatorStateStorage.getElevatorStopFloor());
 		}
 		//to see the changing of plain
-		elevatorStateStorage.getElevatorStatesLog().forEach(System.out::println);
+		elevatorStateStorage.getElevatorStatesLog().forEach(currentState -> LOGGER.info(currentState.toString()));
 	}
 	
-	private void addStopFloorIfMoveDown(int destinationFloor){
+	private void addPassingStop(int destinationFloor){
 		Iterator<ElevatorTimeState> iterator = elevatorStateStorage.getElevatorStatesLog().descendingIterator();
 		while (iterator.hasNext()) {
 			ElevatorTimeState currentElevatorPosition = iterator.next();
