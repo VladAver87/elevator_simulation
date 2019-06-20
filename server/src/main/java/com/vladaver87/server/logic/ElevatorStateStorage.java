@@ -23,16 +23,16 @@ public class ElevatorStateStorage {
 	}
 	
 	public String getState(long requestTime) {
-		ElevatorTimeState result = elevatorTimeStates.lower(new ElevatorTimeState(requestTime));
-		if (result.getState().equals(State.STOP)) {
-			return result.showStateIfElevatorStop();
+		ElevatorTimeState stateAtRequestTime = elevatorTimeStates.lower(new ElevatorTimeState(requestTime));
+		if (stateAtRequestTime.getState().equals(State.STOP)) {
+			return stateAtRequestTime.showStateIfElevatorStop();
 		} 
-		return result.toString();
+		return stateAtRequestTime.toString();
 	}
 	
 	public int getCurrentFloor(long requestTime) {
-		int result = elevatorTimeStates.lower(new ElevatorTimeState(requestTime)).getCurrentFloor();
-		return result;
+		
+		return elevatorTimeStates.lower(new ElevatorTimeState(requestTime)).getCurrentFloor();
 	}
 	
 	public long getLastTime() {
