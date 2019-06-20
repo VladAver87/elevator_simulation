@@ -60,6 +60,10 @@ public class ElevatorTimeState  {
 		return "[state = " + state + ", destination floor = " + destinationFloor
 				+ ", current floor = " + currentFloor + "]";
 	}
+	
+	public String showStateIfElevatorStop() {
+		return "[state = " + state + ", current floor = " + currentFloor + "]";
+	}
 
 	@Override
 	public boolean equals(Object obj) {

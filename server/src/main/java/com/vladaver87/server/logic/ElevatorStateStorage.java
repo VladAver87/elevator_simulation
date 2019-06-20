@@ -24,6 +24,9 @@ public class ElevatorStateStorage {
 	
 	public String getState(long requestTime) {
 		ElevatorTimeState result = elevatorTimeStates.lower(new ElevatorTimeState(requestTime));
+		if (result.getState().equals(State.STOP)) {
+			return result.showStateIfElevatorStop();
+		} 
 		return result.toString();
 	}
 	

@@ -1,6 +1,5 @@
 package com.vladaver87.server.logic;
 
-import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.Iterator;
 import javax.annotation.PostConstruct;
@@ -18,7 +17,6 @@ public class ElevatorLogic {
 	private final Integer delay;
 	private final Integer numberOfFloors;
 	private final Logger LOGGER = LoggerFactory.getLogger(ElevatorLogic.class);
-	private final ArrayDeque<Integer> elevatorCallsQueue = new ArrayDeque<>();
 	private ElevatorStateStorage elevatorStateStorage;
 
 	@Autowired
@@ -35,8 +33,7 @@ public class ElevatorLogic {
 		elevatorStateStorage.addState(new Date().getTime(), State.STOP, 0, 1);
 	}
 
-	public void moveElevatorToClientFloor() {
-		int destinationFloor = elevatorCallsQueue.pollFirst();
+	public void moveElevatorToClientFloor(int destinationFloor) {
 		if (destinationFloor > elevatorStateStorage.getCurrentFloor(new Date().getTime())) {
 			moveUp(destinationFloor);
 		} else {
@@ -130,12 +127,12 @@ public class ElevatorLogic {
 
 	public void callOnFloor(int floor) {
 		LOGGER.info("Arrival floor # {} is added to queue", floor);
-		moveElevatorToClientFloor();
+		moveElevatorToClientFloor(floor);
 	}
 
 	public void callFromElevator(int floor) {
 		LOGGER.info("Arrival floor # {} is added to queue", floor);
-		moveElevatorToClientFloor();
+		moveElevatorToClientFloor(floor);
 	}
 
 }
