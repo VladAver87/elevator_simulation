@@ -17,13 +17,13 @@ public class ElevatorRestController {
 	
 	
 	@PutMapping("/client/{floor}")
-	public void moveElevatorToClientFloor(@PathVariable String floor) {
-		elevatorLogic.callOnFloor(Integer.valueOf(floor));
+	public void callOutside(@PathVariable Integer floor) {
+		elevatorLogic.callOutside(floor);
 	}
 	
 	@PutMapping("/elevator/{floor}")
-	public void moveElevatorToDestinationFloor(@PathVariable String floor) {
-		elevatorLogic.callFromElevator(Integer.valueOf(floor));
+	public void callInside(@PathVariable Integer floor) {
+		elevatorLogic.callInside(floor);
 	}
 	
 	@GetMapping("/client/currentFloor")
@@ -32,8 +32,8 @@ public class ElevatorRestController {
 	}
 	
 	@GetMapping("/client/currentState/{time}")
-	public String getCurrentState(@PathVariable String time) {
-		return elevatorLogic.getCurrentState(Long.valueOf(time));
+	public String getCurrentState(@PathVariable long time) {
+		return elevatorLogic.getCurrentState(time);
 	}
 	
 	@GetMapping("/client/maxFloors")

@@ -3,20 +3,19 @@ package com.vladaver87.server.logic;
 import java.util.Date;
 import java.util.Iterator;
 import javax.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import com.vladaver87.server.model.ElevatorTimeState;
 import com.vladaver87.server.model.State;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class ElevatorLogic {
 	private final Integer speed;
 	private final Integer delay;
 	private final Integer numberOfFloors;
-	private final Logger LOGGER = LoggerFactory.getLogger(ElevatorLogic.class);
 	private ElevatorStateStorage elevatorStateStorage;
 
 	@Autowired
@@ -33,7 +32,7 @@ public class ElevatorLogic {
 		elevatorStateStorage.addState(new Date().getTime(), State.STOP, 0, 1);
 	}
 
-	public void moveElevatorToClientFloor(int destinationFloor) {
+	public synchronized void move(int destinationFloor) {
 		if (destinationFloor > elevatorStateStorage.getCurrentFloor(new Date().getTime())) {
 			moveUp(destinationFloor);
 		} else {
@@ -42,11 +41,12 @@ public class ElevatorLogic {
 	}
 
 	public void moveUp(int destinationFloor) {
-		removeStopState();
 		if (destinationFloor < elevatorStateStorage.getElevatorStopFloor()) {
 			addPassingStop(destinationFloor);
 		} else {
+			removeStopState();
 			long currentTime = new Date().getTime();
+			clearElevatorPlan(currentTime);
 			if (currentTime < elevatorStateStorage.getLastTime()) {
 				currentTime = elevatorStateStorage.getLastTime() + delay;
 			}		
@@ -64,17 +64,18 @@ public class ElevatorLogic {
 			elevatorStateStorage.addState(maxTime, State.STOP, 0, elevatorStateStorage.getElevatorStopFloor());
 		}
 		// to see the changing of plan
-		elevatorStateStorage.getElevatorStatesLog().forEach(currentState -> LOGGER.info(currentState.toString()));
+		elevatorStateStorage.getElevatorStatesLog().forEach(currentState -> log.debug(currentState.toString()));
 
 	}
 
 	public void moveDown(int destinationFloor) {
-		removeStopState();
 		int lastStopFloor = elevatorStateStorage.getElevatorStopFloor();
 		long currentTime = new Date().getTime();
 		if (destinationFloor > lastStopFloor && destinationFloor < elevatorStateStorage.getCurrentFloor(currentTime)) {
 			addPassingStop(destinationFloor);
 		} else {
+			clearElevatorPlan(currentTime);
+			removeStopState();
 			if (currentTime < elevatorStateStorage.getLastTime()) {
 				currentTime = elevatorStateStorage.getLastTime() + delay;
 			}
@@ -92,7 +93,7 @@ public class ElevatorLogic {
 			elevatorStateStorage.addState(maxTime, State.STOP, 0, elevatorStateStorage.getElevatorStopFloor());
 		}
 		// to see the changing of plan
-		elevatorStateStorage.getElevatorStatesLog().forEach(currentState -> LOGGER.info(currentState.toString()));
+		elevatorStateStorage.getElevatorStatesLog().forEach(currentState -> log.debug(currentState.toString()));
 	}
 
 	private void addPassingStop(int destinationFloor) {
@@ -110,6 +111,11 @@ public class ElevatorLogic {
 			}
 			currentElevatorPosition.setTime(currentElevatorPosition.getTime() + delay);
 		}
+	}
+	
+	private void clearElevatorPlan(long currentTime) {
+		elevatorStateStorage.getElevatorStatesLog().removeIf(currentPosition -> currentPosition.getTime() < currentTime && 
+				currentPosition != elevatorStateStorage.getElevatorStatesLog().last());
 	}
 	
 	private void removeStopState() {
@@ -133,14 +139,14 @@ public class ElevatorLogic {
 		return numberOfFloors;
 	}
 
-	public void callOnFloor(int floor) {
-		LOGGER.info("Arrival floor # {} is added to elevator plan", floor);
-		moveElevatorToClientFloor(floor);
+	public void callOutside(int floor) {
+		log.info("Arrival floor # {} is added to elevator plan", floor);
+		move(floor);
 	}
 
-	public void callFromElevator(int floor) {
-		LOGGER.info("Arrival floor # {} is added to elevator plan", floor);
-		moveElevatorToClientFloor(floor);
+	public void callInside(int floor) {
+		log.info("Destination floor # {} is added to elevator plan", floor);
+		move(floor);
 	}
 
 }

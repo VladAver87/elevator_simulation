@@ -1,7 +1,6 @@
 package com.vladaver87.server.util;
 
 import java.util.Comparator;
-
 import com.vladaver87.server.model.ElevatorTimeState;
 
 public class ElevatorTimeStateComparator implements Comparator<ElevatorTimeState>{
